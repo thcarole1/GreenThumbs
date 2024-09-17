@@ -3,6 +3,8 @@ import string
 from nltk.corpus import stopwords
 from nltk import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
 def get_features(data : pd.DataFrame)-> pd.DataFrame :
@@ -56,3 +58,24 @@ def preprocess_features(X):
     """ Returns a Series with preprocessed text"""
     X_preproc = X.apply(preprocessing)
     return X_preproc
+
+def get_fitted_tokenizer(X):
+    """ returns a fitted tokenizer"""
+    tk = Tokenizer()
+    tk.fit_on_texts(X)
+    print(f"✅ Fitted tokenizer created")
+    return tk
+
+def get_tokenized(X, tokenizer):
+    """ return tokenized data"""
+    X_tokens = tokenizer.texts_to_sequences(X)
+
+    return X_tokens
+
+def get_padded(X_token, maxlen = 30):
+    """ returns padded data"""
+    X_pad = pad_sequences(X_token,
+                          dtype=float,
+                          padding='post',
+                          maxlen= maxlen)
+    return X_pad

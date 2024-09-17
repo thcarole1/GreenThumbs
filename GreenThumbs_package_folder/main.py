@@ -7,7 +7,13 @@ from sklearn.model_selection import train_test_split
 
 # Import from .py files
 from ml_logic.data import retrieve_cleaned_data
-from ml_logic.preprocessor import get_features, get_target, preprocess_features
+from ml_logic.model import get_NB_metric,get_score_evaluation,\
+                            initialize_model_RNN, train_model_RNN, \
+                            initialize_model_CNN, train_model_CNN
+
+from ml_logic.preprocessor import get_features, get_target, \
+                                preprocess_features, get_fitted_tokenizer, \
+                                get_tokenized, get_padded
 
 def main_program():
         # Retrieve the data and clean it
@@ -27,30 +33,57 @@ def main_program():
         X_test_preproc = preprocess_features(X_test['ReviewText'])
         print(f"✅ X_test preprocessed")
 
-
         # Baseline calculation
-        # Architecture
-        # Training
-        # Evaluation
+        NB_metric_accuracy = get_NB_metric(X_train_preproc, y_train)
+        print(f"✅ Baseline accuracy calculated !")
+        print(f"⭐️ Baseline accuracy : {NB_metric_accuracy}")
 
-
-
+        # ------- Preprocessing for Neural Networks !!---------
         # Tokenize
+        tokenizer = get_fitted_tokenizer(X_train_preproc)
+        X_train_tokens = get_tokenized(X_train_preproc, tokenizer)
+        X_test_tokens = get_tokenized(X_test_preproc, tokenizer)
+        print(f"✅ Tokenized data created")
+        # Vocab size?
+        vocab_size = len(tokenizer.word_index)
+        print(f"✅ vocab_size has been retrieved")
 
         # Padding
+        X_train_pad = get_padded(X_train_tokens, maxlen = 30)
+        X_test_pad = get_padded(X_test_tokens, maxlen = 30)
+        print(f"✅ Tokenized data created")
+        # -----------------------------------------------------
 
-        # RNN
+        # ------------------ RNN ------------------------------
         # Architecture
+        model = initialize_model_RNN(vocab_size, embedding_size=50)
         # Training
+        model_trained = train_model_RNN(X_train_pad, y_train, model)
         # Evaluation
+        RNN_metric_accuracy =get_score_evaluation(X_test_pad, y_test, model_trained)
+        print(f"✅ RNN score has been evaluated")
+        print(f"⭐️ RNN accuracy : {RNN_metric_accuracy}")
+        # -----------------------------------------------------
 
-        # CNN
+        # ------------------ CNN ------------------------------
         # Architecture
+        model = initialize_model_CNN(vocab_size, embedding_size=50)
         # Training
+        model_trained = train_model_CNN(X_train_pad, y_train, model)
         # Evaluation
+        CNN_metric_accuracy =get_score_evaluation(X_test_pad, y_test, model_trained)
+        print(f"✅ CNN score has been evaluated")
+        print(f"⭐️ CNN accuracy : {CNN_metric_accuracy}")
+        # -----------------------------------------------------
 
+       #--------------------- Summary -------------------------
+        metrics = {'model' : ['NB (baseline)','RNN','CNN'],
+            'accuracy' : [NB_metric_accuracy, RNN_metric_accuracy, CNN_metric_accuracy]}
 
-       # Summary
+        metrics = pd.DataFrame(metrics).sort_values(by = 'accuracy', ascending=False)
+        print(f"⭐️⭐️ Summary ⭐️⭐️")
+        print(metrics)
+       # -----------------------------------------------------
 
 def say_hello():
     print('Hello World !')
