@@ -4,12 +4,18 @@ import numpy as np
 from colorama import Fore, Style
 
 from sklearn.model_selection import train_test_split
+from tensorflow.keras import models
+
+from params import DUMMY_DATA_DIR, ORIGINAL_DATA_DIR
 
 # Import from .py files
-from ml_logic.data import retrieve_cleaned_data
+from ml_logic.data import retrieve_cleaned_data,\
+                            save_original_data
 from ml_logic.model import get_NB_metric,get_score_evaluation,\
                             initialize_model_RNN, train_model_RNN, \
-                            initialize_model_CNN, train_model_CNN
+                            initialize_model_CNN, train_model_CNN, \
+                            save_model, load_model, get_prediction,\
+                            save_tokenizer,load_tokenizer
 
 from ml_logic.preprocessor import get_features, get_target, \
                                 preprocess_features, get_fitted_tokenizer, \
@@ -41,6 +47,9 @@ def main_program():
         # ------- Preprocessing for Neural Networks !!---------
         # Tokenize
         tokenizer = get_fitted_tokenizer(X_train_preproc)
+        # save fitted tokenizer
+        save_tokenizer(tokenizer)
+
         X_train_tokens = get_tokenized(X_train_preproc, tokenizer)
         X_test_tokens = get_tokenized(X_test_preproc, tokenizer)
         print(f"✅ Tokenized data created")
@@ -51,7 +60,7 @@ def main_program():
         # Padding
         X_train_pad = get_padded(X_train_tokens, maxlen = 30)
         X_test_pad = get_padded(X_test_tokens, maxlen = 30)
-        print(f"✅ Tokenized data created")
+        print(f"✅ Padded data created")
         # -----------------------------------------------------
 
         # ------------------ RNN ------------------------------
@@ -85,12 +94,87 @@ def main_program():
         print(metrics)
        # -----------------------------------------------------
 
+
+def train_model():
+        # Retrieve the data and clean it
+        reviews_df = retrieve_cleaned_data()
+
+        # Get X and y from data
+        X = get_features(reviews_df)
+        y = get_target(reviews_df)
+
+        # Train test split
+        X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=42)
+        print(f"✅ Train test split Done")
+
+        # Preprocess X_train and X_test
+        X_train_preproc = preprocess_features(X_train['ReviewText'])
+        print(f"✅ X_train preprocessed")
+        X_test_preproc = preprocess_features(X_test['ReviewText'])
+        print(f"✅ X_test preprocessed")
+
+                # ------- Preprocessing for Neural Networks !!---------
+        # Tokenize
+        tokenizer = get_fitted_tokenizer(X_train_preproc)
+        X_train_tokens = get_tokenized(X_train_preproc, tokenizer)
+        X_test_tokens = get_tokenized(X_test_preproc, tokenizer)
+        print(f"✅ Tokenized data created")
+        # Vocab size?
+        vocab_size = len(tokenizer.word_index)
+        print(f"✅ vocab_size has been retrieved")
+
+        # Padding
+        X_train_pad = get_padded(X_train_tokens, maxlen = 30)
+        X_test_pad = get_padded(X_test_tokens, maxlen = 30)
+        print(f"✅ Tokenized data created")
+        # -----------------------------------------------------
+        # ------------------ RNN Training ------------------------------
+        # Architecture
+        model = initialize_model_RNN(vocab_size, embedding_size=50)
+        # Training
+        model_trained = train_model_RNN(X_train_pad, y_train, model)
+        print(f"⭐️ RNN  has been trained")
+
+        save_model(model_trained, 'RNN')
+        print(f"⭐️ Trained RNN model saved")
+        # -----------------------------------------------------
+
+
+def test_prediction():
+    X_test = pd.read_json(DUMMY_DATA_DIR + '20240918_004705_dummy_15_reviews.json')
+    X_test_preproc = preprocess_features(X_test['ReviewText'])
+
+    # ------- Preprocessing for Neural Networks !!---------
+    # Tokenize
+    tokenizer = load_tokenizer()
+    print(f"✅ Tokenizer loaded")
+    X_test_tokens = get_tokenized(X_test_preproc, tokenizer)
+    print(f"✅ Tokenized data created")
+
+    # Padding
+    X_test_pad = get_padded(X_test_tokens, maxlen = 30)
+    print(f"✅ Padded data created")
+    # ----------------------------------------------------
+
+    #  Load RNN model
+    model = load_model('RNN')
+    print(f"✅ Model has been loaded ! ")
+
+    # Prediction
+    prediction = get_prediction(X_test_pad, model)
+    print(prediction)
+    print(f"✅ Prediction Done ! ")
+    breakpoint()
+
 def say_hello():
     print('Hello World !')
 
 if __name__ == '__main__':
     try:
-        main_program()
+        # main_program()
+        # train_model()
+        # save_original_data()
+        test_prediction()
 
     except:
         import sys

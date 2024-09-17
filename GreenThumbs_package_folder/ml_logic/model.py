@@ -4,9 +4,11 @@ from sklearn.model_selection import cross_validate
 from sklearn.pipeline import make_pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
-from tensorflow.keras import layers, Sequential
+from tensorflow.keras import layers, Sequential, models
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
+import pickle
+from params import TRAIN_MDL_DIR
 
 #  ---------------- BASELINE MODEL : NAIVE BAYES --------------------
 def get_NB_metric(X,y):
@@ -74,6 +76,13 @@ def get_score_evaluation(X_test, y_test, model):
     return res
 # --------------------------------------------------------------------
 
+#  ---------------- MODEL PREDICTION (RNN, CNN) ----------------------
+def get_prediction(X_test, model):
+    """ Gets prediction"""
+    prediction = model.predict(X_test)
+    return prediction
+# --------------------------------------------------------------------
+
 #  ---------------- CNN MODEL ----------------------------------------
 def initialize_model_CNN(vocab_size, embedding_size=50):
     """ Initialize RNN model :
@@ -121,3 +130,34 @@ def train_model_CNN(X, y, model):
     print(f"✅ CNN model has been trained")
     return model
 # --------------------------------------------------------------------
+
+
+#  ---------------- SAVE MODEL ----------------------------------------
+def save_model(model, str):
+    """ Saves model"""
+    model.save(TRAIN_MDL_DIR + f"{str}_model.keras")
+
+# --------------------------------------------------------------------
+
+#  ---------------- LOAD MODEL ----------------------------------------
+def load_model(str):
+    """ Loads trained model"""
+    return models.load_model(TRAIN_MDL_DIR + f'{str}_model.keras')
+# --------------------------------------------------------------------
+
+#  ---------------- SAVE TOKENIZER ----------------------------------------
+def save_tokenizer(tokenizer):
+    """ Saves tokenizer"""
+    # Export Pipeline as pickle file
+    with open(TRAIN_MDL_DIR + "tokenizer.pkl", "wb") as file:
+        pickle.dump(tokenizer, file)
+# --------------------------------------------------------------------
+
+
+#  ---------------- LOAD TOKENIZER ----------------------------------------
+def load_tokenizer():
+    """ Load tokenizer from pickle filer"""
+    loaded_tokenizer = pickle.load(open(TRAIN_MDL_DIR + "tokenizer.pkl","rb"))
+    return loaded_tokenizer
+# --------------------------------------------------------------------
+    # Load tokenizer from pickle file

@@ -10,7 +10,6 @@ install:
 test:
 	@pytest -v tests
 
-
 reset_trained_models:
-	@rm -rf ${DUMMY_DIR}
-	@mkdir  ${DUMMY_DIR}
+	@rm -rf ${TRAIN_MDL_DIR}
+	@mkdir ${TRAIN_MDL_DIR}

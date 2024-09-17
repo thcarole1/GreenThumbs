@@ -1,4 +1,5 @@
 import pandas as pd
+from params import ORIGINAL_DATA_SOURCE,ORIGINAL_DATA_DIR
 
 def retrieve_cleaned_data() -> pd.DataFrame:
     """ 1. Retrieve data as pandas dataframe from Le Wagon public dataset.
@@ -17,3 +18,13 @@ def retrieve_cleaned_data() -> pd.DataFrame:
     print(f"✅ Duplicated rows dropped -> Shape : {data.shape}")
 
     return data
+
+
+def save_original_data():
+    # Retrieve original data
+    data = pd.read_csv(ORIGINAL_DATA_SOURCE)
+    print(f"✅ original data has been retrieved -> Shape : {data.shape}")
+
+    # Save original data
+    data.to_json(ORIGINAL_DATA_DIR + 'reviews_df')
+    print(f"✅ original data has been saved -> Shape : {data.shape}")
