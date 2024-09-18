@@ -78,7 +78,9 @@ def get_score_evaluation(X_test, y_test, model):
 
 #  ---------------- MODEL PREDICTION (RNN, CNN) ----------------------
 def get_prediction(X_test, model):
-    """ Gets prediction"""
+    """ Gets prediction from X_test (numpy array)
+    and model (keras sequential model)
+    and returns a array of predictions"""
     prediction = model.predict(X_test)
     return prediction
 # --------------------------------------------------------------------
