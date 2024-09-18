@@ -4,7 +4,7 @@ import numpy as np
 from colorama import Fore, Style
 
 from sklearn.model_selection import train_test_split
-from tensorflow.keras import models
+# from tensorflow.keras import models
 
 from params import DUMMY_DATA_DIR, ORIGINAL_DATA_DIR
 
@@ -141,7 +141,7 @@ def train_model():
 
 
 def test_prediction():
-    X_test = pd.read_json(DUMMY_DATA_DIR + '20240918_004705_dummy_15_reviews.json')
+    X_test = pd.read_json(DUMMY_DATA_DIR + '20240918_004705_dummy_3_reviews.json')
     X_test_preproc = preprocess_features(X_test['ReviewText'])
 
     # ------- Preprocessing for Neural Networks !!---------
@@ -162,9 +162,10 @@ def test_prediction():
 
     # Prediction
     prediction = get_prediction(X_test_pad, model)
-    print(prediction)
+    prediction = prediction.tolist()
+    prediction_final = [_[0] for _ in prediction]
+    print(prediction_final)
     print(f"✅ Prediction Done ! ")
-    breakpoint()
 
 def say_hello():
     print('Hello World !')

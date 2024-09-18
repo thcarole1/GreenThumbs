@@ -8,7 +8,7 @@ from tensorflow.keras import layers, Sequential, models
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping
 import pickle
-from params import TRAIN_MDL_DIR
+from GreenThumbs_package_folder.params import TRAIN_MDL_DIR
 
 #  ---------------- BASELINE MODEL : NAIVE BAYES --------------------
 def get_NB_metric(X,y):
